@@ -12,6 +12,19 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+from django.core.exceptions import ImproperlyConfigured
+
+
+def get_env(key, default=None):
+    try:
+        return os.environ[key]
+    except KeyError:
+        if default is not None:
+            return default
+        else:
+            err_msg = f"Set the {key} environment variable"
+            raise ImproperlyConfigured(err_msg)
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -25,7 +38,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", default="foo")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = "true"
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
 
 
 # Application definition
@@ -74,12 +87,15 @@ WSGI_APPLICATION = "TestTask.wsgi.application"
 
 
 # Database
-# https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": get_env("DB_NAME"),
+        "USER": get_env("DB_USER"),
+        "PASSWORD": get_env("DB_PASSWORD"),
+        "HOST": get_env("DB_HOST"),
+        "PORT": get_env("DB_PORT", 5432),
     }
 }
 

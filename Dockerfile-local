@@ -2,18 +2,16 @@ FROM python:3.8
 
 ENV PYTHONDONTWRITBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV DEBUG 0
+ENV PORT=8888
 
 RUN mkdir /app
 WORKDIR /app
-ADD TestTask /app/
-ADD requirements.txt /app/
-ADD Procfile /app/
-
-ENV PORT=8888
+ADD . /app/
 
 RUN pip3 install -r requirements.txt
 
 RUN apt-get update && apt-get -y install cron
 
-# EXPOSE 8888
-CMD gunicorn TestTask.wsgi:application --bind 0.0.0.0:$PORT
+EXPOSE 8888
+CMD cd TestTask/ && gunicorn TestTask.wsgi:application --bind 0.0.0.0:$PORT

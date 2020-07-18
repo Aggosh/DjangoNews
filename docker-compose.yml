@@ -1,10 +1,27 @@
 version: '3'
 
 services:
-        web:
-                build: .
-                command: python TestTask/manage.py runserver 0.0.0.0:8000
+        db:
+                image: postgres:latest
                 volumes:
-                        - .:/app
+                        - postgres_data:/var/lib/postgresql/data
+                environment:
+                        POSTGRES_PASSWORD: $DB_PASSWORD
+                env_file:
+                        - .env
+        web:
+                restart: always
+                build: .
+                command: >
+                        bash -c "python ./bash/start.py
+                        && ./bash/start.sh"
+                volumes:
+                        - .:/TestTask
                 ports:
-                        - "8000:8000"
+                        - "80:8888"
+                env_file:
+                        - .env
+                depends_on:
+                        - db
+volumes:
+        postgres_data:
